@@ -66,6 +66,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     let xrButton = null;
     let xrRefSpace = null;
     let isAR = false;
+    let xrCount = 0;
     let radii = new Float32Array(25);
     let positions = new Float32Array(16*25);
     
@@ -178,6 +179,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       // Listen for the sessions 'end' event so we can respond if the user
       // or UA ends the session for any reason.
       session.addEventListener('end', onSessionEnded);
+      
+      //liwe add++
+      session.addEventListener('inputsourceschange', onInputSourcesChange); //liwe
+      
+      session.addEventListener('selectstart', onSelectsqueeze);
+      session.addEventListener('selectend', onSelectsqueeze);
+      session.addEventListener('select', onSelectsqueeze);
+      session.addEventListener('squeezestart', onSelectsqueeze);
+      session.addEventListener('squeezeend', onSelectsqueeze);
+      session.addEventListener('squeeze', onSelectsqueeze);
+      //liwe add--
 
       session.addEventListener('visibilitychange', e => {
         // remove hand controller while blurred
@@ -222,6 +234,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       });
     }
 
+    //liwe++
+    function onInputSourcesChange(event) {
+      for (let inputSource of event.added) {
+        	console.log("[liwe]onInputSourcesChange added inputSource.profiles=" + inputSource.profiles);
+        	console.log("[liwe]onInputSourcesChange added inputSource.targetRayMode=" + inputSource.targetRayMode+" {"+inputSource.handedness+")");
+        	if(inputSource.hand)  console.log("[liwe]onInputSourcesChange support hand");
+        	if(inputSource.gamepad)  console.log("[liwe]onInputSourcesChange support gamepad");
+      }
+      for (let inputSource of event.removed) {
+       	console.log("[liwe]onInputSourcesChange removed");
+      }
+    }
+    
+      function onSelectsqueeze(ev) {
+        console.log("[liwe]onSelectsqueeze type=" + ev.type);
+      }
+    //liwe--
+      
     // Called when the user clicks the 'Exit XR' button. In response we end
     // the session.
     function onEndSession(session) {
@@ -267,10 +297,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           scene.inputRenderer.addCursor(cursorPos);
         }
 
-        let offset = 0;
-        if (!inputSource.hand) {
-          continue;
-        } else {
+        if (inputSource.hand) {
           for (const box of boxes[inputSource.handedness]) {
             scene.removeNode(box);
           }
@@ -279,24 +306,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           if (pose === undefined) {
             console.log("no pose");
           }
-
+          xrCount = xrCount + 1;
           if (!frame.fillJointRadii(inputSource.hand.values(), radii)) {
-            console.log("no fillJointRadii");
+            if (xrCount%180 == 0) console.log("no fillJointRadii "+xrCount);
             continue;
           }
+          if (xrCount%180 == 0) console.log(" fillJointRadii radii="+radii[0]+","+radii[1]+","+radii[2]+","+radii[3]);
           if (!frame.fillPoses(inputSource.hand.values(), refSpace, positions)) {
-            console.log("no fillPoses");
+            if (xrCount%180 == 0) console.log("no fillPoses "+xrCount);
             continue;
           }
+          //if (xrCount%180 == 0) console.log(" fillJointRadii positions="+positions[0]+","+positions[1]+","+positions[2]+","+positions[3]);
+          let offset = 0;
           for (const box of boxes[inputSource.handedness]) {
             scene.addNode(box);
             let matrix = positions.slice(offset * 16, (offset + 1) * 16);
             let jointRadius = radii[offset];
             offset++;
+            //if(offset%3 == 0) continue;
             mat4.getTranslation(box.translation, matrix);
             mat4.getRotation(box.rotation, matrix);
             box.scale = [jointRadius, jointRadius, jointRadius];
           }
+          //console.log("[liwe]boxes.length="+boxes.length+ " offset="+offset + " radii[]="+radii);
           	
           // Render a special box for each index finger on each hand	
           const indexFingerBox = indexFingerBoxes[inputSource.handedness];	

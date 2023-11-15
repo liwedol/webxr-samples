@@ -154,6 +154,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
       function onSessionStarted(session) {
         session.addEventListener('end', onSessionEnded);
+        
+        session.addEventListener('inputsourceschange', onInputSourcesChange); //liwe
 
         session.addEventListener('selectstart', onSelectStart);
         session.addEventListener('selectend', onSelectEnd);
@@ -186,9 +188,21 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           session.requestAnimationFrame(onXRFrame);
         });
       }
+      //liwe++
+      function onInputSourcesChange(event) {
+        for (let inputSource of event.added) {
+          	console.log("[liwe]onInputSourcesChange added inputSource.profiles=" + inputSource.profiles);
+          	console.log("[liwe]onInputSourcesChange added inputSource.targetRayMode=" + inputSource.targetRayMode);
+          	console.log("[liwe]onInputSourcesChange added inputSource.handedness=" + inputSource.handedness);
+        }
+        for (let inputSource of event.removed) {
+         	console.log("[liwe]onInputSourcesChange removed");
+        }
+      }
+      //liwe--
 
       function onSelectStart(ev) {
-        console.log("selectstart " + currently_selected_boxes);
+        console.log("[liwe]selectstart " + currently_selected_boxes);
         let refSpace = ev.frame.session.isImmersive ?
                          xrImmersiveRefSpace :
                          inlineViewerHelper.referenceSpace;
@@ -213,7 +227,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSelectEnd(ev) {
         let i = (ev.inputSource.handedness == "left") ? 0 : 1;
         let currently_selected_box = currently_selected_boxes[i];  
-        console.log("selectend " + currently_selected_box);
+        console.log("[liwe]selectend " + currently_selected_box);
         if (currently_selected_box != null) {
           if (currently_selected_box.selected) {
             // it is expected that the scale is 0.75 (see onSelectStart). This should make the scale 1.0
@@ -229,7 +243,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSelect(ev) {
         let i = (ev.inputSource.handedness == "left") ? 0 : 1;
         let currently_selected_box = currently_selected_boxes[i];  
-        console.log("select " + currently_selected_box);
+        console.log("[liwe]select " + currently_selected_box);
         if (currently_selected_box != null) {
           // Change the box color to something random.
           let uniforms = currently_selected_box.renderPrimitive.uniforms;
@@ -241,7 +255,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
 
       function onSqueezeStart(ev) {
-        console.log("squeezestart " + currently_grabbed_boxes);
+        console.log("[liwe]squeezestart " + currently_grabbed_boxes);
         let refSpace = ev.frame.session.isImmersive ?
                          xrImmersiveRefSpace :
                          inlineViewerHelper.referenceSpace;
@@ -267,7 +281,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSqueezeEnd(ev) {
         let i = (ev.inputSource.handedness == "left") ? 0 : 1;
         let currently_grabbed_box = currently_grabbed_boxes[i];  
-        console.log("squeezeend " + currently_grabbed_box);
+        console.log("[liwe]squeezeend " + currently_grabbed_box);
         if (currently_grabbed_box != null && currently_grabbed_box.grabbed) {
           // the scale of 'grabbed' box is 0.1. Restore the original scale.
           vec3.add(currently_grabbed_box.scale, currently_grabbed_box.scale, [1, 1, 1]);
@@ -279,7 +293,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSqueeze(ev) {
         let i = (ev.inputSource.handedness == "left") ? 0 : 1;
         let currently_grabbed_box = currently_grabbed_boxes[i];  
-        console.log("squeeze " + currently_grabbed_box);
+        console.log("[liwe]squeeze " + currently_grabbed_box);
         if (currently_grabbed_box != null && currently_grabbed_box.grabbed) {
           // Change the box color to something random, so we can see that 'squeeze' was invoked.
           let uniforms = currently_grabbed_box.renderPrimitive.uniforms;
