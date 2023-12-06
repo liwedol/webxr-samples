@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cookie管理器</title>
+    <title>Cookie manager</title>
 </head>
 <body>
-    <label for="textInput">請輸入文字：</label>
+    <label for="textInput">input text：</label>
     <input type="text" id="textInput">
-    <button onclick="setCookie()">將文字轉成Cookie</button><br><br>
+    <button onclick="setCookie()"> set Cookie</button><br><br>
     
-    <button onclick="getCookie()">顯示Cookie</button><br><br>
+    <button onclick="displayCookie()">show Cookie</button><br><br>
 
-    <button onclick="clearCookie()">清除Cookie</button><br><br>
+    <div id="cookieDisplay"></div>
+
+    <button onclick="clearCookie()">clear Cookie</button><br><br>
 
     <script>
         function setCookie() {
             var userInput = document.getElementById("textInput").value;
             document.cookie = "userInputCookie=" + userInput;
-            alert("已將文字轉成Cookie！");
+            document.getElementById("cookieDisplay").innerText = "transer to Cookie！";
         }
 
-        function getCookie() {
+        function displayCookie() {
             var cookies = document.cookie.split(';');
             var cookieValue = "";
             cookies.forEach(function(cookie) {
@@ -28,15 +30,15 @@
                 }
             });
             if (cookieValue !== "") {
-                alert("目前的Cookie值為: " + cookieValue);
+                document.getElementById("cookieDisplay").innerText = "current Cookie: " + cookieValue;
             } else {
-                alert("目前沒有設定Cookie！");
+                document.getElementById("cookieDisplay").innerText = "not set Cookie！";
             }
         }
 
         function clearCookie() {
             document.cookie = "userInputCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            alert("已清除Cookie！");
+            document.getElementById("cookieDisplay").innerText = "clear Cookie！";
         }
     </script>
 </body>
